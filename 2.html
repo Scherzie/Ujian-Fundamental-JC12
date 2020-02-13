@@ -3,14 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOM</title>
+    <title>Madding</title>
+    <style>
+        table,td,th,tr {
+            border: 1px solid red;
+            border-collapse: collapse;
+            padding: 10px;
+            margin: 0 auto;
+            text-align: center;   
+        }
+    </style>
 </head>
 <body>
     <center>
-        Username : <input type="text" id="username" placeholder="Masukkan Nama"><br><br>
-        Password : <input type="password" id="password" placeholder="Masukkan Password"><br><br>
-        <button onclick="login()">Login</button>
+        <h1>Madding</h1>
+        Username : <input type="text" id="username"><br><br>
+        Password : <input type="password" id="password"><br><br>
+        <button onclick="login()">Login</button><br><br>
+        <table>
+            <thead>
+                <tr>
+                    <td>No</td>
+                    <td>Kegiatan</td>
+                    <td>Hari</td>
+                    <td>Poster</td>
+                    <td>Act</td>
+                </tr>
+            </thead>
+            <tbody id="dataMadding"></tbody>
+            <tfoot id="add"></tfoot>
+        </table>
         <p id="isi"></p>
     </center>
 </body>
+<script>
+    //Define
+    class User{
+        constructor(username,password,role){
+            this.username=username,
+            this.password=password,
+            this.role=role
+        }
+    }
+    var dataUser=[
+        new User('admin','12','admin'),
+        new User('dian','34','user')
+    ]
+    class KegiatanMadding{
+        constructor(kegiatan,hari,poster){
+            this.kegiatan=kegiatan,
+            this.hari=hari,
+            this.poster=poster
+        }
+    }
+    var dataKegiatanMadding=[
+        new KegiatanMadding('lari','senin','https://www.femina.co.id/images/images/PERSIAPAN%20LARI.jpg'),
+        new KegiatanMadding('shopping','selasa','https://www.parkgrandpaddingtoncourt.co.uk/blog/wp-content/uploads/2017/10/Shopping.jpg')
+    ]
+
+    //Login
+    var userLogin=[]
+    const login=()=>{
+        var username=document.getElementById('username').value
+        var password=document.getElementById('password').value
+        if(username&&password){
+            var cekData=dataUser.filter((val)=>val.username==username&&val.password==password)
+                if(cekData.length===1){
+                    if(username=='admin'){
+                        userLogin=cekData[0]
+                        printdata(1)
+                        var output=`<h1>${userLogin.username}</h1><br>
+                                    <button onclick="logout()">Logout</button>`
+                        document.getElementById('username').value=''
+                        document.getElementById('password').value=''
+                        document.getElementById('isi').innerHTML=output
+                    }else{
+                        userLogin=cekData[0]
+                        printdata(2)
+                        var output=`<h1>${userLogin.username}</h1><br>
+                                    <button onclick="logout()">Logout</button>`
+                        document.getElementById('username').value=''
+                        document.getElementById('password').value=''
+                        document.getElementById('isi').innerHTML=output
+                    }
+                }else{
+                    document.getElementById('isi').innerHTML='<h1>password salah</h1>'
+                }
+        }
+    }
+    //Logout
+    const logout=()=>{
+        userLogin=[]
+        document.getElementById('dataMadding').innerHTML=''
+        document.getElementById('isi').innerHTML=''
+    }
+
+    //Print
+    var indexdelete=-1
+    var indexedit=-1
+    const printdata=(param)=>{
+        var output=''
+        var username=document.getElementById('username').value
+        dataKegiatanMadding.forEach((val,index)=>{
+            if(param==1){
+                if(index==indexdelete){
+                    output+=`<tr>
+                                <td>${index+1}</td>
+                                <td>${val.kegiatan}</td>
+                                <td>${val.hari}</td>
+                                <td><img src=${val.poster} alt=${index} height='200px'></td>
+                                <td>
+                                    <button onclick="canceldelete()">No</button>
+                                    <button onclick="acceptDelete(${index})">Yes</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><button onclick="inputdataonClick()">input data</button></td>
+                            </tr>`
+                }else if(index==indexedit){
+                    output+=`<tr>
+                                <td>${index+1}</td>
+                                <td><input type="text" id='editkegiatan' placeholder="kegiatan apa?" value=${dataKegiatanMadding[indexedit].kegiatan}></td>
+                                <td>
+                                    <select id="edithari" >
+                                        <option hidden value="">pilih hari ..</option>
+                                        <option value="senin">senin</option>
+                                        <option value="selasa">selasa</option>
+                                        <option value="rabu">rabu</option>
+                                        <option value="kamis">kamis</option>
+                                        <option value="jumat">jumat</option>
+                                        <option value="sabtu">sabtu</option>
+                                        <option value="minggu">minggu</option>
+                                    </select>
+                                </td>
+                                <td><input type="text" id='editposter' placeholder="masukkan poster anda" value=${dataKegiatanMadding[indexedit].poster}></td>
+                                <td>
+                                    <button onclick="updatedata(${index})">Save</button>
+                                    <button onclick="cancelupdatedata()">Cancel</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><button onclick="inputdataonClick()">input data</button></td>
+                            </tr>`
+                }else{
+                    output+=`<tr>
+                                <td>${index+1}</td>
+                                <td>${val.kegiatan}</td>
+                                <td>${val.hari}</td>
+                                <td><img src=${val.poster} alt=${index} height='200px'></td>
+                                <td>
+                                    <button onclick="deletekegiatan(${index})">delete</button>
+                                    <button onclick="editkegiatan(${index})">edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><button onclick="inputdataonClick()">input data</button></td>
+                            </tr>`
+                }
+            }if(param==2){
+                output+=`<tr>
+                        <td>${index+1}</td>
+                        <td>${val.kegiatan}</td>
+                        <td>${val.hari}</td>
+                        <td><img src=${val.poster} alt=${index} height='200px'></td>
+                        <td></td>
+                    </tr>`
+            }
+        })
+        document.getElementById('dataMadding').innerHTML=output
+    }
+
+    //Delete
+    const deletekegiatan=(indexdel)=>{
+        indexdelete=indexdel
+        printdata(1)
+    }
+    const acceptDelete=(indexdel)=>{
+        dataKegiatanMadding.splice(indexdel,1)
+        indexdelete=-1
+        printdata(1)
+
+    }
+    const canceldelete=()=>{
+        indexdelete=-1
+        printdata(1)
+    }
+
+    //Edit
+    const editkegiatan=(indexed)=>{
+    indexedit=indexed
+    printdata(1)
+    }
+    const updatedata=(indexed)=>{
+        var editkegiatan=document.getElementById('editkegiatan').value
+        var edithari=document.getElementById('edithari').value
+        var editposter=document.getElementById('editposter').value
+        if(editkegiatan===''){
+            editkegiatan=data[indexed].kegiatan
+        }
+        if(edithari===''){
+            edithari=data[indexed].hari
+        }
+        if(editposter===''){
+            editposter=data[indexed].poster
+        }
+        dataKegiatanMadding.splice(indexed,1,new KegiatanMadding(editkegiatan,edithari,editposter))
+        indexedit=-1
+        printdata(1)
+    }
+    const cancelupdatedata=()=>{
+        indexedit=-1
+        printdata(1)
+    }
+
+    //Add To Do
+    const inputdataonClick=()=>{
+        var addkegiatan=document.getElementById('kegiatan').value
+        var addhari=document.getElementById('hari').value
+        var addposter=document.getElementById('poster').value
+        if(addkegiatan==''||addhari==''||addposter==''){
+            alert('coba input semua dulu')
+        }else{
+            dataKegiatanMadding.push(new KegiatanMadding(addkegiatan,addposter,addhari))
+            document.getElementById('kegiatan').value=''
+            document.getElementById('hari').value=''
+            document.getElementById('poster').value=''
+            printdata(1)
+        }
+    }
+</script>
 </html>
